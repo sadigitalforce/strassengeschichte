@@ -1,6 +1,5 @@
 name: Upload Release to Dropbox
 
-# Dieser Workflow läuft, sobald Du unter "Releases" eine neue Release veröffentlichst
 on:
   release:
     types: [published]

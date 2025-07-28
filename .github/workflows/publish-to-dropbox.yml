@@ -1,15 +1,38 @@
+name: Upload Release to Dropbox
+
+# Dieser Workflow läuft, sobald Du unter "Releases" eine neue Release veröffentlichst
+on:
+  release:
+    types: [published]
+
 jobs:
-   upload:
-     runs-on: ubuntu-latest
-     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v3
+  upload:
+    runs-on: ubuntu-latest
 
--      - name: Download release asset
--        uses: dawidd6/action-download-release-asset@v2
-+      - name: Download release asset
-+        uses: dawidd6/action-download-release-asset@v1
+    steps:
+      # 1) Hol Dir den Code aus dem Repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-       - name: Upload to Dropbox
--        uses: peter-evans/dropbox-upload@v1
-+        uses: peter-evans/dropbox-upload@v2
+      # 2) Lade das von Dir erstellte Release-Asset herunter
+      - name: Download release asset
+        uses: dawidd6/action-download-release-asset@v1
+        with:
+          repository: ${{ github.repository }}
+          # automatisch der Tag-Name Deiner Release (z.B. "v1.0.0")
+          tag: ${{ github.event.release.tag_name }}
+          # genau der Dateiname Deiner ZIP (muss exakt übereinstimmen)
+          asset_name: 'Band1_Full_Package.zip'
+          # wo die Datei im Runner abgelegt werden soll
+          output: './Band1_Full_Package.zip'
+
+      # 3) Lade die heruntergeladene Datei in Deine Dropbox
+      - name: Upload to Dropbox
+        uses: peter-evans/dropbox-upload@v2
+        with:
+          # Muss als Repository-Secret angelegt sein (Settings → Secrets → Actions)
+          access-token: ${{ secrets.DROPBOX_TOKEN }}
+          # Zielpfad in Deiner Dropbox (inkl. führendem Slash)
+          destination-path: '/Strassengeschichte/Band1_Full_Package.zip'
+          # Pfad zur lokalen Datei, die hochgeladen werden soll
+          source-file: './Band1_Full_Package.zip'

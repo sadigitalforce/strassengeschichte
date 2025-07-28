@@ -1,7 +1,7 @@
 name: Upload Release to Dropbox
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 release:
   types: [published]

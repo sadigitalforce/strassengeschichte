@@ -2,8 +2,9 @@ name: Upload Release to Dropbox
 
 on:
   release:
-    types: [published]
-
+    types:
+      - published
+  workflow_dispatch:
 jobs:
   upload:
     runs-on: ubuntu-latest

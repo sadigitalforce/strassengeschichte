@@ -1,0 +1,28 @@
+name: Upload Release to Dropbox
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload-to-dropbox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download release asset
+        uses: dawidd6/action-download-release-asset@v2
+        with:
+          repository: ${{ github.repository }}
+          tag: ${{ github.event.release.tag_name }}
+          asset_name: 'Band1_Full_Package.zip'
+          output: './Band1_Full_Package.zip'
+
+      - name: Upload to Dropbox
+        uses: peter-evans/dropbox-upload@v1
+        with:
+          access-token: ${{ secrets.DROPBOX_TOKEN }}
+          # Pfad in deiner App-Folder-Struktur aktualisiert:
+          destination-path: '/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/Band1_Full_Package.zip'
+          source-file: './Band1_Full_Package.zip'

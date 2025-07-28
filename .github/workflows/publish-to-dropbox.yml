@@ -1,29 +1,15 @@
-name: Upload Release to Dropbox
-
-# Trigger immer dann, wenn du unter "Releases" einen neue Version "publishest"
-on:
-  release:
-    types: [published]
-
 jobs:
-  upload:
-    runs-on: ubuntu-latest
+   upload:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+         uses: actions/checkout@v3
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+-      - name: Download release asset
+-        uses: dawidd6/action-download-release-asset@v2
++      - name: Download release asset
++        uses: dawidd6/action-download-release-asset@v1
 
-      - name: Download release asset
-        uses: dawidd6/action-download-release-asset@v2
-        with:
-          repository: ${{ github.repository }}
-          tag: ${{ github.event.release.tag_name }}
-          asset_name: 'Band1_Full_Package.zip'        # genau so heißen muss deine ZIP
-          output: './Band1_Full_Package.zip'
-
-      - name: Upload to Dropbox
-        uses: peter-evans/dropbox-upload@v2       # V2 statt V1
-        with:
-          access-token: ${{ secrets.DROPBOX_TOKEN }}
-          destination-path: '/Straßengeschichte/Band1_Full_Package.zip'
-          source-file: './Band1_Full_Package.zip'
+       - name: Upload to Dropbox
+-        uses: peter-evans/dropbox-upload@v1
++        uses: peter-evans/dropbox-upload@v2

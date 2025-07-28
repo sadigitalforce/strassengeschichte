@@ -1,29 +1,33 @@
 name: Upload Release to Dropbox
 
 on:
-  workflow_dispatch:    # manuelles Auslösen via 'Run workflow'
-  release:             # beim Veröffentlichen einer Release automatisch gestartet
+  release:
     types:
       - published
+  workflow_dispatch:    # Manuelles Auslösen via 'Run workflow'
 
 jobs:
   upload:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Download release asset
-        uses: dawidd6/action-download-release-asset@v1
+        uses: dawidd6/action-download-release-asset@v2
         with:
           repository: ${{ github.repository }}
           tag:        ${{ github.event.release.tag_name }}
           asset_name: 'Band1_Full_Package.zip'
           output:     './Band1_Full_Package.zip'
 
-      - name: Upload to Dropbox
-        uses: peter-evans/dropbox-upload@v1
-        with:
-          access-token:     ${{ secrets.DROPBOX_TOKEN }}
-          destination-path: '/Strassengeschichte/Band1_Full_Package.zip'
-          source-file:      './Band1_Full_Package.zip'
+      - name: Upload to Dropbox via cURL
+        env:
+          DROPBOX_TOKEN: ${{ secrets.DROPBOX_TOKEN }}
+        run: |
+          curl -X POST https://content.dropboxapi.com/2/files/upload \
+            --header "Authorization: Bearer $DROPBOX_TOKEN" \
+            --header "Dropbox-API-Arg: {\"path\": \"/Strassengeschichte/Band1_Full_Package.zip\",\"mode\": \"overwrite\",\"mute\": false}" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary @./Band1_Full_Package.zip

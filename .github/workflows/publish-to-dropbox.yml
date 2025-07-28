@@ -7,31 +7,21 @@ on:
 jobs:
   upload:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) Hol Dir den Code aus dem Repo
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v3
 
-      # 2) Lade das von Dir erstellte Release-Asset herunter
       - name: Download release asset
-        uses: dawidd6/action-download-release-asset@v1
+        uses: dawidd6/action-download-release-asset@v3
         with:
           repository: ${{ github.repository }}
-          # automatisch der Tag-Name Deiner Release (z.B. "v1.0.0")
-          tag: ${{ github.event.release.tag_name }}
-          # genau der Dateiname Deiner ZIP (muss exakt übereinstimmen)
+          tag:        ${{ github.event.release.tag_name }}
           asset_name: 'Band1_Full_Package.zip'
-          # wo die Datei im Runner abgelegt werden soll
-          output: './Band1_Full_Package.zip'
+          output:     './Band1_Full_Package.zip'
 
-      # 3) Lade die heruntergeladene Datei in Deine Dropbox
       - name: Upload to Dropbox
         uses: peter-evans/dropbox-upload@v2
         with:
-          # Muss als Repository-Secret angelegt sein (Settings → Secrets → Actions)
-          access-token: ${{ secrets.DROPBOX_TOKEN }}
-          # Zielpfad in Deiner Dropbox (inkl. führendem Slash)
-          destination-path: '/Strassengeschichte/Band1_Full_Package.zip'
-          # Pfad zur lokalen Datei, die hochgeladen werden soll
-          source-file: './Band1_Full_Package.zip'
+          access-token:    ${{ secrets.DROPBOX_TOKEN }}
+          destination-path: '/Straßengeschichte/Band1_Full_Package.zip'
+          source-file:      './Band1_Full_Package.zip'

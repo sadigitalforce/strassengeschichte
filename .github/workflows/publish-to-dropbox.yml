@@ -1,7 +1,5 @@
 name: Upload Release to Dropbox
 
-name: Upload Release to Dropbox
-
 on:
   workflow_dispatch:    # Manuelles Auslösen über „Run workflow“ in Actions
   release:             # Automatisches Auslösen beim Veröffentlichen eines Releases

@@ -1,33 +1,31 @@
-name: Upload Release to Dropbox
+name: Publish to Dropbox
 
 on:
   release:
-    types:
-      - published
-  workflow_dispatch:    # Manuelles Auslösen via 'Run workflow'
+    types: [published]
 
 jobs:
   upload:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Download release asset
-        uses: dawidd6/action-download-release-asset@v2
+      - name: Download all release assets
+        uses: softprops/action-download-release-asset@v1
         with:
-          repository: ${{ github.repository }}
-          tag:        ${{ github.event.release.tag_name }}
-          asset_name: 'Band1_Full_Package.zip'
-          output:     './Band1_Full_Package.zip'
+          repository: sadigitalforce/strassengeschichte
+          tag: ${{ github.ref_name }}
+          asset_name: '*'
 
-      - name: Upload to Dropbox via cURL
+      - name: Upload to Dropbox
         env:
           DROPBOX_TOKEN: ${{ secrets.DROPBOX_TOKEN }}
         run: |
-          curl -X POST https://content.dropboxapi.com/2/files/upload \
-            --header "Authorization: Bearer $DROPBOX_TOKEN" \
-            --header "Dropbox-API-Arg: {\"path\": \"/Strassengeschichte/Band1_Full_Package.zip\",\"mode\": \"overwrite\",\"mute\": false}" \
-            --header "Content-Type: application/octet-stream" \
-            --data-binary @./Band1_Full_Package.zip
+          for f in *; do
+            echo "Uploading $f..."
+            curl -X POST https://content.dropboxapi.com/2/files/upload \
+              --header "Authorization: Bearer $DROPBOX_TOKEN" \
+              --header "Dropbox-API-Arg={\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$f\", \"mode\": \"overwrite\"}" \
+              --header "Content-Type: application/octet-stream" \
+              --data-binary @"$f"
+          done

@@ -10,12 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download all release assets
-        uses: softprops/action-download-release-asset@v1
+      - name: Download Release Assets
+        uses: softprops/action-gh-release@v1
         with:
-          repository: sadigitalforce/strassengeschichte
-          tag: ${{ github.ref_name }}
-          asset_name: '*'
+          files: "*"
 
       - name: Upload to Dropbox
         env:
@@ -25,7 +23,7 @@ jobs:
             echo "Uploading $f..."
             curl -X POST https://content.dropboxapi.com/2/files/upload \
               --header "Authorization: Bearer $DROPBOX_TOKEN" \
-              --header "Dropbox-API-Arg={\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$f\", \"mode\": \"overwrite\"}" \
+              --header "Dropbox-API-Arg: {\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$f\", \"mode\": \"overwrite\"}" \
               --header "Content-Type: application/octet-stream" \
               --data-binary @"$f"
           done

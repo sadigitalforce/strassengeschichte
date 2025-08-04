@@ -1,33 +1,29 @@
-name: Publish to Dropbox
+name: Publish ZIP to Dropbox (Direct)
 
 on:
-  release:
-    types: [published]
+  push:
+    paths:
+      - release-assets/**
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Download Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: "*"
-
-      - name: Upload to Dropbox
+      - name: Upload ZIP(s) from release-assets to Dropbox
         env:
           DROPBOX_TOKEN: ${{ secrets.DROPBOX_TOKEN }}
         run: |
-          echo "Starte rekursiven Upload aller Dateien..."
-
-          find . -type f | while read -r file; do
-            relpath="${file#./}"  # entfernt ./ am Anfang für Dropbox-Pfad
-            echo "🔄 Upload: $relpath"
-
-            curl -s -X POST https://content.dropboxapi.com/2/files/upload \
+          echo "Starte Upload aus release-assets/..."
+          shopt -s nullglob
+          for f in release-assets/*.zip; do
+            echo "Hochladen von $f..."
+            curl -X POST https://content.dropboxapi.com/2/files/upload \
               --header "Authorization: Bearer $DROPBOX_TOKEN" \
-              --header "Dropbox-API-Arg: {\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$relpath\", \"mode\": \"overwrite\"}" \
+              --header "Dropbox-API-Arg: {\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$(basename $f)\",\"mode\": \"overwrite\"}" \
               --header "Content-Type: application/octet-stream" \
-              --data-binary @"$file" || echo "❌ Fehler beim Upload von: $relpath – übersprungen"
+              --data-binary @$f
           done
+

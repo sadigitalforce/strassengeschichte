@@ -19,14 +19,15 @@ jobs:
         env:
           DROPBOX_TOKEN: ${{ secrets.DROPBOX_TOKEN }}
         run: |
-          echo "Starte rekursiven Upload aller Dateien unterhalb des aktuellen Verzeichnisses..."
+          echo "Starte rekursiven Upload aller Dateien..."
+
           find . -type f | while read -r file; do
-            relpath="${file#./}"  # Entfernt ./ am Anfang
+            relpath="${file#./}"  # entfernt ./ am Anfang für Dropbox-Pfad
             echo "🔄 Upload: $relpath"
+
             curl -s -X POST https://content.dropboxapi.com/2/files/upload \
               --header "Authorization: Bearer $DROPBOX_TOKEN" \
               --header "Dropbox-API-Arg: {\"path\": \"/VERLAGSPROJEKTE_SA_AXMANN/strassengeschichte/$relpath\", \"mode\": \"overwrite\"}" \
               --header "Content-Type: application/octet-stream" \
-              --data-binary @"$file" || echo "❌ Fehler beim Upload von: $relpath"
+              --data-binary @"$file" || echo "❌ Fehler beim Upload von: $relpath – übersprungen"
           done
-Dropbox
